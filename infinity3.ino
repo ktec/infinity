@@ -1,15 +1,14 @@
 #include <FastLED.h>
 
 #define LED_PIN     12
+#define POT_IN      A0
+#define AUDIO_IN_PIN A1
 #define COLOR_ORDER GRB
 #define CHIPSET     WS2811
 #define NUM_LEDS    144
 
-#define BRIGHTNESS  50
+#define BRIGHTNESS  100
 #define FRAMES_PER_SECOND 300
-
-float volume;
-float our_signal;
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
@@ -27,17 +26,20 @@ void setup() {
 }
 
 void loop() {
-  volume = analogRead(A0);
-  our_signal = 1023.0 - volume;
-  Serial.println(our_signal);
+
+  //ledHue = map(audioInValue, 0, 1023, 0, BRIGHTNESS);
 
   for(int i = 0; i < NUM_LEDS; i++) {
-    leds[i].setHue(our_signal * 356/10);
-    // FastLED.show(); // display this frame
-    // delay(10);
+    int audioInValue = analogRead(AUDIO_IN_PIN);
+    int brightness = map(audioInValue, 0, 1023, BRIGHTNESS, 10);
+    Serial.println(brightness);
+    int potInValue = analogRead(POT_IN);
+    int hue = map(potInValue, 0, 1023, 0, 255);
+    leds[i].setHue( hue );
+    FastLED.setBrightness( brightness );
+    FastLED.show(); // display this frame
+    delay(10);
   }
 
-  FastLED.setBrightness( our_signal );
-  FastLED.show(); // display this frame
   //FastLED.delay(1000 / FRAMES_PER_SECOND);
 }
